@@ -5,16 +5,30 @@ import displayINRCurrency from "../../helpers/displayCurrency.js";
 import { Link } from "react-router-dom";
 import Context from "../../context/index.jsx";
 import scrollTop from "../../helpers/scrollTop.js";
+import addToCart from "../../helpers/addToCart.js";
+import removeFromCart from "../../helpers/removeFromCart.js";
 
 function CategoryWiseProductDisplay({ category, heading }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const loadingList = new Array(13).fill(null);
 
-  const { fetchUserAddToCart } = useContext(Context);
+  const { fetchUserAddToCart, cartItems } = useContext(Context);
+
+  const isInCart = (productId) => {
+    return cartItems.some((item) => item.productId === productId);
+  };
 
   const handleAddToCart = async (e, id) => {
-    await addToCart(e, id);
+    if (isInCart(id)) {
+      const cartItem = cartItems.find((item) => item.productId === id);
+      if (cartItem) {
+        await removeFromCart(cartItem._id);
+      }
+    } else {
+      await addToCart(e, id);
+    }
+    // await addToCart(e, id);
     fetchUserAddToCart();
   };
 
@@ -85,10 +99,16 @@ function CategoryWiseProductDisplay({ category, heading }) {
                       </p>
                     </div>
                     <button
-                      className="text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-0.5 rounded-full"
+                      className={`text-sm ${
+                        isInCart(product?._id)
+                          ? "bg-gray-400 hover:bg-gray-500"
+                          : "bg-red-600 hover:bg-red-700"
+                      } text-white px-3 py-0.5 rounded-full cursor-pointer`}
                       onClick={(e) => handleAddToCart(e, product?._id)}
                     >
-                      Add to Cart
+                      {isInCart(product?._id)
+                        ? "Remove from Cart"
+                        : "Add to Cart"}
                     </button>
                   </div>
                 </Link>
