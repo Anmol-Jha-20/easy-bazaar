@@ -7,6 +7,7 @@ import displayINRCurrency from "../helpers/displayCurrency.js";
 import CategroyWiseProductDisplay from "../components/category/CategoryWiseProductDisplay.jsx";
 import addToCart from "../helpers/addToCart.js";
 import Context from "../context/index.jsx";
+import removeFromCart from "../helpers/removeFromCart.js";
 
 function ProductDetails() {
   const [data, setData] = useState({
@@ -30,7 +31,7 @@ function ProductDetails() {
   });
   const [zoomImage, setZoomImage] = useState(false);
 
-  const { fetchUserAddToCart } = useContext(Context);
+  const { fetchUserAddToCart, cartItems } = useContext(Context);
 
   const navigate = useNavigate();
 
@@ -82,8 +83,20 @@ function ProductDetails() {
     setZoomImage(false);
   };
 
+  const isInCart = (productId) => {
+    return cartItems.some((item) => item.productId === productId);
+  };
+
   const handleAddToCart = async (e, id) => {
-    await addToCart(e, id);
+    if (isInCart(id)) {
+      const cartItem = cartItems.find((item) => item.productId === id);
+      if (cartItem) {
+        await removeFromCart(cartItem._id);
+      }
+    } else {
+      await addToCart(e, id);
+    }
+    // await addToCart(e, id);
     fetchUserAddToCart();
   };
 
@@ -216,10 +229,14 @@ function ProductDetails() {
                 Buy
               </button>
               <button
-                className="border-2 border-red-600 rounded px-3 py-1 min-w-[120px] font-medium text-white bg-red-600 hover:text-red-600 hover:bg-white cursor-pointer"
+                className={`border-2 border-red-600 rounded px-3 py-1 min-w-[120px] font-medium text-white ${
+                  isInCart(data?._id)
+                    ? "bg-gray-400 hover:bg-gray-500 border-white"
+                    : "bg-red-600 hover:bg-red-700"
+                } cursor-pointer`}
                 onClick={(e) => handleAddToCart(e, data?._id)}
               >
-                Add To Cart
+                {isInCart(data?._id) ? "Remove from Cart" : "Add to Cart"}
               </button>
             </div>
 

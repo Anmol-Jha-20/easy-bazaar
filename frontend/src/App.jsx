@@ -12,6 +12,7 @@ import { setUserDetails } from "./store/userSlice.js";
 
 function App() {
   const dispatch = useDispatch();
+  const [cartItems, setCartItems] = useState([]);
   const [cartProductCount, setCartProductCount] = useState(0);
 
   const fetchUserDetails = async () => {
@@ -35,6 +36,7 @@ function App() {
     const dataApi = await dataResponse.json();
 
     setCartProductCount(dataApi?.data?.count);
+    setCartItems(dataApi?.data?.cart || []);
   };
 
   useEffect(() => {
@@ -45,7 +47,13 @@ function App() {
   return (
     <>
       <Context.Provider
-        value={{ fetchUserDetails, cartProductCount, fetchUserAddToCart }}
+        value={{
+          fetchUserDetails,
+          cartItems,
+          setCartItems,
+          cartProductCount,
+          fetchUserAddToCart,
+        }}
       >
         <ToastContainer position="top-center" />
         <Header />

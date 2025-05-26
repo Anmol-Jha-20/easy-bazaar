@@ -7,10 +7,12 @@ const countAddToCartProduct = async (req, res) => {
     const count = await addToCartModel.countDocuments({
       userId: userId,
     });
+    const cartItems = await addToCartModel.find({ userId });
 
     res.json({
       data: {
         count: count,
+        cart: cartItems,
       },
       message: "ok",
       error: false,
